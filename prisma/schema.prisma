@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,106 +8,30 @@ datasource db {
   relationMode = "prisma"
 }
 
-model Game {
-  id                      String                    @id @default(uuid())
-  name                    String                    @unique
-  image_url               String                    @db.Text
-  description             String                    @db.Text
-  players                 String
-  playtime                String
-  mechanics               String                    @db.Text
-  categories              String                    @db.Text
-  isExpansion             Boolean                   @default(false)
-  baseGameId              String?
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  GameSessionGameJunction GameSessionGameJunction[]
-  PlayerGameJunction      PlayerGameJunction[]
-}
-
 model Player {
-  id                        String                      @id @default(uuid())
-  name                      String
-  nickname                  String?
-  email                     String?
-  clerkId                   String?
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  PlayerGameSessionJunction PlayerGameSessionJunction[]
-  PlayerGameJunction        PlayerGameJunction[]
-  PlayerGameGroupJunction   PlayerGameGroupJunction[]
-
-  @@unique(clerkId)
-  @@unique(email)
-}
-
-model GameGroup {
-  id                      String                    @id
-  name                    String                    @default("Game Night")
+  id                      String                    @id @default(uuid())
   createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  PlayerGameGroupJunction PlayerGameGroupJunction[]
-  hidden                  Boolean                   @default(false)
+  name                    String
+  clarkId                 String                    @unique
+  email                   String                    @unique
+  PlayerGameNightJunction PlayerGameNightJunction[]
 }
 
-model PlayerGameSessionJunction {
-  id            String      @id @default(uuid())
-  player        Player      @relation(fields: [playerId], references: [id])
-  playerId      String
-  position      Int?
-  score         String?
-  gameSession   GameSession @relation(fields: [gameSessionId], references: [id])
-  gameSessionId String
-
-  @@unique([playerId, gameSessionId])
+model PlayerGameNightJunction {
+  id           String    @id @default(uuid())
+  createdAt    DateTime  @default(now())
+  player       Player    @relation(fields: [playerId], references: [id])
+  gameNight    GameNight @relation(fields: [gameNightId], references: [id])
+  playerId     String
+  gameNightId  String
+  playerStatus String
+  playerVote   String
 }
 
-model GameSessionGameJunction {
-  id            String      @id @default(uuid())
-  game          Game        @relation(fields: [gameId], references: [id])
-  gameId        String
-  gameSession   GameSession @relation(fields: [gameSessionId], references: [id])
-  gameSessionId String
-
-  @@unique([gameId, gameSessionId])
-}
-
-model GameSession {
-  id                        String                      @id @default(uuid())
-  gameId                    String
-  groupId                   String                      @default("game-night")
-  result                    String?
-  status                    String
-  description               String?
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  PlayerGameSessionJunction PlayerGameSessionJunction[]
-  GameSessionGameJunction   GameSessionGameJunction[]
-}
-
-model PlayerGameJunction {
-  id        String   @id @default(uuid())
-  gameId    String
-  playerId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Game      Game     @relation(fields: [gameId], references: [id])
-  Player    Player   @relation(fields: [playerId], references: [id])
-
-  @@unique([gameId, playerId])
-}
-
-model PlayerGameGroupJunction {
-  id                String    @id @default(uuid())
-  groupId           String
-  playerId          String
-  role              String
-  inviteStatus      String
-  gameGroupIsActive Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  GameGroup         GameGroup @relation(fields: [groupId], references: [id])
-  Player            Player    @relation(fields: [playerId], references: [id])
-
-  @@unique([groupId, playerId])
+model GameNight {
+  id           String   @id @default(uuid())
+  originalDate DateTime
+  newDate      DateTime
+  createdAt    DateTime @default(now())
+  PlayerGameNightJunction PlayerGameNightJunction[]
 }
